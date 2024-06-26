@@ -9,7 +9,7 @@ from aiogram.fsm.storage.memory import MemoryStorage
 
 
 b1 = ReplyKeyboardMarkup(keyboard=[
-    [KeyboardButton(text = 'Перезапустить бота')]],
+    [KeyboardButton(text = 'Новый поиск')]],
     resize_keyboard=True)
 
 

@@ -70,7 +70,12 @@ async def year_step_two(callback_query: CallbackQuery, state: FSMContext):
     await bot.send_message(callback_query.from_user.id, f'<strong>Теперь введите год:</strong>', parse_mode='html')
 @dp.message(FilmSearch.s_prefix_year)
 async def year_step_three(message: types.Message, state: FSMContext):
-    await state.update_data(s_prefix_year=message.text)
+    if message.text.isdigit() and len(message.text) == 4:
+        await state.update_data(s_prefix_year=message.text)
+    else:
+        wrong = message.text
+        await message.answer(f'<strong>{wrong} не является годом. Введите год, в формате четырёх цифр.</strong>', parse_mode='html', reply_markup=b1)
+        return
     data = await state.get_data()
     try:
         result = read_content_according_year(data['s_prefix_sign'], data['s_prefix_year'])
@@ -92,7 +97,12 @@ async def year_and_genre_step_two(callback_query: CallbackQuery, state: FSMConte
     await bot.send_message(callback_query.from_user.id, f'<strong>Введите год:</strong>', parse_mode='html')
 @dp.message(FilmSearch.year)
 async def year_and_genre_step_three(message: types.Message, state: FSMContext):
-    await state.update_data(year=message.text)
+    if message.text.isdigit() and len(message.text) == 4:
+        await state.update_data(year=message.text)
+    else:
+        wrong = message.text
+        await message.answer(f'<strong>{wrong} не является годом. Введите год в формате четырёх цифр.</strong>', parse_mode='html', reply_markup=b1)
+        return
     await message.answer(f'<strong>Выберите жанр:</strong>', reply_markup = await button_from_genres_and_year(), parse_mode='html')
 @dp.callback_query(lambda call: call.data.startswith(Y_PREFIX))
 async def year_and_genre_step_four(callback_query: CallbackQuery, state: FSMContext):
@@ -118,7 +128,7 @@ async def most_popular_films(callback: CallbackQuery):
         await callback.message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>', parse_mode='html', )
 
 
-@dp. message (F.text == 'Перезапустить бота')
+@dp. message (F.text == 'Новый поиск')
 async def how_are_you (message: Message):
     await cmd_start(message)
 
