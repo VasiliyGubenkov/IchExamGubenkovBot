@@ -72,18 +72,21 @@ async def year_step_two(callback_query: CallbackQuery, state: FSMContext):
 async def year_step_three(message: types.Message, state: FSMContext):
     if message.text.isdigit() and len(message.text) == 4:
         await state.update_data(s_prefix_year=message.text)
+        data = await state.get_data()
+        try:
+            result = read_content_according_year(data['s_prefix_sign'], data['s_prefix_year'])
+            await message.answer(f'<strong>{result}</strong>', parse_mode='html', reply_markup=b1)
+        except:
+            await message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>',
+                                 parse_mode='html', reply_markup=b1)
+        finally:
+            await state.clear()
+    elif message.text == 'Новый поиск':
+        await cmd_start(message)
     else:
         wrong = message.text
         await message.answer(f'<strong>{wrong} не является годом. Введите год, в формате четырёх цифр.</strong>', parse_mode='html', reply_markup=b1)
         return
-    data = await state.get_data()
-    try:
-        result = read_content_according_year(data['s_prefix_sign'], data['s_prefix_year'])
-        await message.answer(f'<strong>{result}</strong>', parse_mode='html', reply_markup=b1)
-    except:
-        await message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>', parse_mode='html', reply_markup=b1)
-    finally:
-        await state.clear()
 
 
 @dp.callback_query(F.data == 'year_and_genre')
@@ -99,11 +102,13 @@ async def year_and_genre_step_two(callback_query: CallbackQuery, state: FSMConte
 async def year_and_genre_step_three(message: types.Message, state: FSMContext):
     if message.text.isdigit() and len(message.text) == 4:
         await state.update_data(year=message.text)
+        await message.answer(f'<strong>Выберите жанр:</strong>', reply_markup=await button_from_genres_and_year(), parse_mode='html')
+    elif message.text == 'Новый поиск':
+        await cmd_start(message)
     else:
         wrong = message.text
         await message.answer(f'<strong>{wrong} не является годом. Введите год в формате четырёх цифр.</strong>', parse_mode='html', reply_markup=b1)
         return
-    await message.answer(f'<strong>Выберите жанр:</strong>', reply_markup = await button_from_genres_and_year(), parse_mode='html')
 @dp.callback_query(lambda call: call.data.startswith(Y_PREFIX))
 async def year_and_genre_step_four(callback_query: CallbackQuery, state: FSMContext):
     genre_from_button = callback_query.data[len(Y_PREFIX):]
@@ -128,8 +133,8 @@ async def most_popular_films(callback: CallbackQuery):
         await callback.message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>', parse_mode='html', )
 
 
-@dp. message (F.text == 'Новый поиск')
-async def how_are_you (message: Message):
+@dp. message(F.text == 'Новый поиск')
+async def how_are_you(message: Message):
     await cmd_start(message)
 
 
