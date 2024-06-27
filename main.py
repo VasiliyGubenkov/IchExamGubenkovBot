@@ -28,13 +28,13 @@ class FilmSearch(StatesGroup):
 
 @dp.message(CommandStart())
 async def cmd_start(message: Message):
-    await message.answer(f"<strong>Привет! Я могу подобрать для вас интересный фильм, по вашим параметрам. Есть несколько вариантов поиска фильмов:</strong>", parse_mode='html', reply_markup=keyboards.b2)
+    await message.answer(f"<strong>Привет, {message.from_user.full_name}! Я могу подобрать для вас интересный фильм, по вашим параметрам. Есть несколько вариантов поиска фильмов:</strong>", parse_mode='html', reply_markup=keyboards.b2)
 
 
 @dp.callback_query(F.data == 'film_name')
 async def film_name_step_one(callback: CallbackQuery, state: FSMContext):
     await callback.answer('Вы выбрали поиск по ключевому слову')
-    await callback.message.answer(f"<strong>Пожалуйста, введите ключевое слово для поиска. Вы увидите все фильмы, в названии которых присутствует это слово.</strong>", parse_mode='html')
+    await callback.message.answer(f"<strong>Пожалуйста, введите ключевое слово для поиска. Вы увидите все фильмы, в названии которых присутствует это слово.</strong>", parse_mode='html', reply_markup=b1)
     await state.set_state(FilmSearch.waiting_for_keyword)
 @dp.message(FilmSearch.waiting_for_keyword)
 async def film_name_step_two(message: types.Message, state: FSMContext):
@@ -67,7 +67,7 @@ async def year_step_two(callback_query: CallbackQuery, state: FSMContext):
     sign= callback_query.data[len(S_PREFIX):]
     await state.update_data(s_prefix_sign=sign)
     await state.set_state(FilmSearch.s_prefix_year)
-    await bot.send_message(callback_query.from_user.id, f'<strong>Теперь введите год:</strong>', parse_mode='html')
+    await bot.send_message(callback_query.from_user.id, f'<strong>Теперь введите год:</strong>', parse_mode='html', reply_markup=b1)
 @dp.message(FilmSearch.s_prefix_year)
 async def year_step_three(message: types.Message, state: FSMContext):
     if message.text.isdigit() and len(message.text) == 4:
@@ -97,7 +97,7 @@ async def year_and_genre_step_two(callback_query: CallbackQuery, state: FSMConte
     m_sign= callback_query.data[len(M_PREFIX):]
     await state.update_data(sign=m_sign)
     await state.set_state(FilmSearch.year)
-    await bot.send_message(callback_query.from_user.id, f'<strong>Введите год:</strong>', parse_mode='html')
+    await bot.send_message(callback_query.from_user.id, f'<strong>Введите год:</strong>', parse_mode='html', reply_markup=b1)
 @dp.message(FilmSearch.year)
 async def year_and_genre_step_three(message: types.Message, state: FSMContext):
     if message.text.isdigit() and len(message.text) == 4:
@@ -130,7 +130,7 @@ async def most_popular_films(callback: CallbackQuery):
         result = read_the_most_popular_logs()
         await callback.message.answer(f'<strong>{result}</strong>', parse_mode='html', reply_markup=b1)
     except:
-        await callback.message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>', parse_mode='html', )
+        await callback.message.answer(f'<strong>Не удалось соединиться с базой данных, перезапустите бота</strong>', parse_mode='html', reply_markup=b1)
 
 
 @dp. message(F.text == 'Новый поиск')
